@@ -9,11 +9,30 @@ class Program {
         //EnsureCreatedAndDeleted();
         //GapDoEnsureCreated();
         //HealthCheckBancoDeDados();
-        _ = new ApplicationContext().Departamentos.AsNoTracking().Any();
-        _count = 0;
-        GerenciarEstadoDaConexa(false);
-        _count = 0;
-        GerenciarEstadoDaConexa(true);
+        //_ = new ApplicationContext().Departamentos.AsNoTracking().Any();
+        //_count = 0;
+        //GerenciarEstadoDaConexa(false);
+        //_count = 0;
+        //GerenciarEstadoDaConexa(true);
+
+        ExecuteSql();
+
+    }
+
+    static void ExecuteSql() {
+        using var db = new ApplicationContext();
+
+        // primeira opção
+        using var cmd = db.Database.GetDbConnection().CreateCommand();
+        cmd.CommandText = "SELECT 1;";
+        cmd.ExecuteNonQuery();
+
+        // segunda opção
+        var descricao = "TESTE";
+        db.Database.ExecuteSqlRaw("update departamentos set descricao={0} where id = 1;", descricao);
+
+        // terceira opção
+        db.Database.ExecuteSqlInterpolated($"update departamentos set descricao={descricao} where id = 1;");
     }
 
     static int _count;
