@@ -1,17 +1,45 @@
 ﻿using DominandoEFCore.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 class Program {
     private static void Main(string[] args) {
         //EnsureCreatedAndDeleted();
-        GapDoEnsureCreated();
+        //GapDoEnsureCreated();
+        HealthCheckBancoDeDados();
+    }
+
+    static void HealthCheckBancoDeDados() {
+        using var context = new ApplicationContext();
+
+        // Maneira comum
+        //try {
+        //    //1
+        //    var connection = context.Database.GetDbConnection();
+        //    connection.Open();
+
+        //    //2
+        //    _ = context.Departamentos.Any();
+
+        //    Console.WriteLine("Posso me conectar");
+        //} catch (Exception) {
+        //    Console.WriteLine("Houve um problema na conexão com o banco de dados");
+        //}
+
+        // Maneira EFCore
+        if (context.Database.CanConnect()) {
+            Console.WriteLine("Posso me conectar");
+            return;
+        }
+
+        Console.WriteLine("Houve um problema na conexão com o banco de dados");
     }
 
     static void EnsureCreatedAndDeleted() {
         using var db = new ApplicationContext();
         db.Database.EnsureCreated();
-        db.Database.EnsureDeleted();
+        //db.Database.EnsureDeleted();
     }
 
     // Assim resolvemos o gap do métod EnsureCreated(); Utilizando o DatabaseCreator Service
