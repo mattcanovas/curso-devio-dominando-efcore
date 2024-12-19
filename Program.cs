@@ -1,4 +1,5 @@
 ﻿using DominandoEFCore.Data;
+using DominandoEFCore.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -15,8 +16,29 @@ class Program {
         //_count = 0;
         //GerenciarEstadoDaConexa(true);
 
-        ExecuteSql();
+        //ExecuteSql();
+        SqlInjection();
+    }
 
+    static void SqlInjection() {
+        using var db = new ApplicationContext();
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
+
+        db.Departamentos.AddRange(
+            new Departamento {
+                Descricao = "Departamento 01"
+            },
+            new Departamento {
+                Descricao = "Departamento 02"
+            }
+        );
+        db.SaveChanges();
+        var descricao = "Departamento 01";
+        db.Database.ExecuteSqlRaw("update Departamentos set Descricao='DepartamentoAlterado' where Descricao = {0}", descricao);
+        foreach(var departamento in db.Departamentos.AsNoTracking()) {
+            Console.WriteLine($"Id: {departamento?.Id}, Descricao: {departamento?.Descricao}");
+        }
     }
 
     static void ExecuteSql() {
@@ -45,7 +67,7 @@ class Program {
         if (true == gerenciarEstadoConexao) {
             conexao.Open();
         }
-        for(int i = 0; i < 200; i++) {
+        for (int i = 0; i < 200; i++) {
             db.Departamentos.AsNoTracking().Any();
         }
 
