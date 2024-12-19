@@ -11,8 +11,8 @@ namespace DominandoEFCore.Data {
             const string strConnection = "Server=127.0.0.1; Port=5432; User ID=postgres; Password=Y7QXzeybI0VChLw; Database=curso-desenvolvedor-io; Pooling=true; MinPoolSize=0; MaxPoolSize=5; Connection Lifetime=3000; Timeout=15";
             optionsBuilder
                 .UseNpgsql(strConnection)
-                .EnableSensitiveDataLogging()
-                .LogTo(Console.WriteLine, LogLevel.Information);
+                .EnableSensitiveDataLogging();
+                //.LogTo(Console.WriteLine, LogLevel.Information);
         }
     }
 }

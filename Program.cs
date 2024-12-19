@@ -2,12 +2,39 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Diagnostics;
 
 class Program {
     private static void Main(string[] args) {
         //EnsureCreatedAndDeleted();
         //GapDoEnsureCreated();
-        HealthCheckBancoDeDados();
+        //HealthCheckBancoDeDados();
+        _ = new ApplicationContext().Departamentos.AsNoTracking().Any();
+        _count = 0;
+        GerenciarEstadoDaConexa(false);
+        _count = 0;
+        GerenciarEstadoDaConexa(true);
+    }
+
+    static int _count;
+    static void GerenciarEstadoDaConexa(bool gerenciarEstadoConexao) {
+        using var db = new ApplicationContext();
+        var time = Stopwatch.StartNew();
+
+        var conexao = db.Database.GetDbConnection();
+        conexao.StateChange += (_, __) => ++_count;
+        if (true == gerenciarEstadoConexao) {
+            conexao.Open();
+        }
+        for(int i = 0; i < 200; i++) {
+            db.Departamentos.AsNoTracking().Any();
+        }
+
+        time.Stop();
+        var mensagem = $"Tempo: {time.Elapsed.ToString()}, {gerenciarEstadoConexao}, Contador: {_count}";
+
+        Console.WriteLine(mensagem);
+        conexao.Close();
     }
 
     static void HealthCheckBancoDeDados() {
